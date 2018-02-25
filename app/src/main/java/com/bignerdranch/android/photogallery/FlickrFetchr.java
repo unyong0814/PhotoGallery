@@ -5,11 +5,16 @@ package com.bignerdranch.android.photogallery;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 
 public class FlickrFetchr {
@@ -58,9 +63,18 @@ public class FlickrFetchr {
                     .build().toString();
             String jsonString = getUrlString(url);
             Log.i(TAG, "Received JSON: " + jsonString);
+            JSONObject jsonBody = new JSONObject(jsonString);
+
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (JSONException je) {
+            Log.e(TAG, "Failed to parse JSON", je);
         }
+    }
+
+    private void parseItems(List<GalleryItem> items, JSONObject jsonBody) throws IOException, JSONException{
+        JSONObject photoJsonObject = jsonBody.getJSONObject("photos");
+        JSONArray photoJsonArray = photoJsonObject.getJSONArray("photo");
     }
 
 }
