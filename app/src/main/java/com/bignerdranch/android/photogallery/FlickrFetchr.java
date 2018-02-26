@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -52,7 +53,9 @@ public class FlickrFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public void fetchItems() {
+    public List<GalleryItem> fetchItems() {
+        List<GalleryItem> items = new ArrayList<>();
+
         try {
             String url = Uri.parse("https://api.flickr.com/services/rest/").buildUpon()
                     .appendQueryParameter("method", "flickr.photos.getRecent")
@@ -64,17 +67,34 @@ public class FlickrFetchr {
             String jsonString = getUrlString(url);
             Log.i(TAG, "Received JSON: " + jsonString);
             JSONObject jsonBody = new JSONObject(jsonString);
-
+            parseItems(items, jsonBody);
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
-        } catch (JSONException je) {
-            Log.e(TAG, "Failed to parse JSON", je);
+        } catch (JSONException e) {
+            Log.e(TAG, "Faield to parse JSON", e);
+        }
+        return items;
+    }
+    private void parseItems(List<GalleryItem> items, JSONObject jsonBody)
+            throws IOException, JSONException {
+
+        JSONObject photoJsonObject = jsonBody.getJSONObject("photos");
+        JSONArray photoJsonArray = photoJsonObject.getJSONArray("photo");
+
+        for(int i = 0 ; i < photoJsonArray.length(); i++) {
+            photoJsonObject = photoJsonArray.getJSONObject(i);
+
+            GalleryItem item = new GalleryItem();
+            item.setId(photoJsonObject.getString("id"));
+            item.setCaption(photoJsonObject.getString("title"));
+
+            if ( !photoJsonObject.has("url_s")) {
+                continue;
+            }
+            item.setUrl(photoJsonObject.getString("url_s"));
+            items.add(item);
         }
     }
 
-    private void parseItems(List<GalleryItem> items, JSONObject jsonBody) throws IOException, JSONException{
-        JSONObject photoJsonObject = jsonBody.getJSONObject("photos");
-        JSONArray photoJsonArray = photoJsonObject.getJSONArray("photo");
-    }
 
 }
