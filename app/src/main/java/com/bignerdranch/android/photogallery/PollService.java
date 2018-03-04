@@ -26,7 +26,7 @@ public class PollService extends IntentService{
     private static final long POLL_INTERVAL = 1000 * 10;
     public static final String ACTION_SHOW_NOTIFICATION
             = "com.bignerdranch.android.photogallery.SHOW_NOTIFICATION";
-
+    public static final String PERM_PRIVATE = "com.bignerdranch.android.photogallery.PRIVATE";
 
     public PollService() {
         super(TAG);
@@ -78,7 +78,7 @@ public class PollService extends IntentService{
             NotificationManagerCompat notificationManger =
                     NotificationManagerCompat.from(this);
             notificationManger.notify(0, notification);
-            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION));
+            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
         }
 
         QueryPreferences.setLastResultId(this, resultId);
